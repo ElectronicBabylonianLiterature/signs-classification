@@ -13,12 +13,13 @@ This project focuses on building and training a machine-learning model to classi
 - [Model Selection](#model-selection)
 - [Training](#training)
 - [Evaluation](#evaluation)
-- [Deployment](#deployment)
 - [Contributing](#contributing)
 - [License](#license)
 
 ## Dataset
 
+To retrieve the cropped images of signs in EBL database, please use this [script](data_retrieval/get_signs.py). It will automatically create folder data with signs, specified in `sign_filter`. 
+You need to pass your database connection string to the script's arguments.
 
 
 
