@@ -22,3 +22,5 @@ class Signs_Dataset(Dataset):
         if self.target_transform:
             label = self.target_transform(label)
         return image, label
+    def get_class_labels(self):
+        return self.img_labels.iloc[:,1].to_list()
