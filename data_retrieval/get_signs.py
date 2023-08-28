@@ -12,7 +12,8 @@ database = client["ebl"]
 annotations = database["annotations"]
 fragments = database["fragments"]
 cropped_images = database["cropped_sign_images"]
-sign_filter = ["GAR", "KI", "NI", "U₂", "MEŠ", "KA", "TI", "TA", "ŠU", "E", "RU"]
+sign_filter = ["GAR","KI", "NI", "U₂", "MEŠ", "KA", "TI", "TA", "ŠU", "E", "RU"]
+counter = 0
 for sign in tqdm.tqdm(sign_filter):
     image_id_era = {}
     if not os.path.isdir(f'data/{sign}'):
@@ -32,7 +33,6 @@ for sign in tqdm.tqdm(sign_filter):
         fragment_cursor = fragments.find({"_id": fragment_id}, {"script.period":1})
         for fragment_doc in fragment_cursor:
             image_id_era[image_id] = fragment_doc['script']['period']
-    counter = 0
     for image in tqdm.tqdm(image_id_era):
         if not os.path.isdir(f'data/{sign}/{image_id_era[image]}'):
             os.mkdir(f'data/{sign}/{image_id_era[image]}')
