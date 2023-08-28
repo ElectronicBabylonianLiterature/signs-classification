@@ -20,6 +20,6 @@ This project focuses on building and training a machine-learning model to classi
 
 To retrieve the cropped images of signs in EBL database, please use this [script](data_retrieval/get_signs.py). It will automatically create folder data with signs, specified in `sign_filter`. 
 You need to pass your database connection string to the script's arguments.
-
-
+![Image Alt Text](imgs/class_imbalance.png)
+  
 
