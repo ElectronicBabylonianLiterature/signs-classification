@@ -13,8 +13,8 @@ annotations = database["annotations"]
 fragments = database["fragments"]
 cropped_images = database["cropped_sign_images"]
 sign_filter = ["GAR", "KI", "NI", "U₂", "MEŠ", "KA", "TI", "TA", "ŠU", "E", "RU"]
-image_id_era = {}
 for sign in tqdm.tqdm(sign_filter):
+    image_id_era = {}
     if not os.path.isdir(f'data/{sign}'):
         if not os.path.isdir('data'):
             os.mkdir('data')
