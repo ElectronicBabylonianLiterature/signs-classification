@@ -55,6 +55,7 @@ For the baseline, I chose [Resnet50](https://pytorch.org/vision/main/models/gene
 | E_Neo-Assyrian       | 75.0         |
 | U₂_Neo-Babylonian    | 74.5         |
 | NI_Neo-Babylonian    | 73.9         |
+| ŠU_Neo-Babylonian    | 71.1         |
 | RU_Neo-Assyrian      | 63.6         |
 | KI_Neo-Assyrian      | 63.4         |
 | TI_Neo-Assyrian      | 58.3         |
