@@ -1,1 +1,3 @@
-**.png
+data_retrieval/data/**/*.png
+*.pth
+*.pyc
