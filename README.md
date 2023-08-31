@@ -35,31 +35,33 @@ For the baseline, I chose [Resnet50](https://pytorch.org/vision/main/models/gene
 * 50 epochs with Early Stopping
 
 ## Evaluation
-
 | Class                | Accuracy (%) |
 |----------------------|--------------|
-| E_Neo-Assyrian       | 75.0         |
-| E_Neo-Babylonian     | 88.6         |
-| GAR_Neo-Assyrian     | 78.6         |
+| TI_Neo-Babylonian    | 94.4         |
 | GAR_Neo-Babylonian   | 91.0         |
-| KA_Neo-Assyrian      | 82.6         |
-| KA_Neo-Babylonian    | 83.7         |
-| KI_Neo-Assyrian      | 63.4         |
+| TA_Neo-Babylonian    | 90.9         |
+| E_Neo-Babylonian     | 88.6         |
 | KI_Neo-Babylonian    | 86.4         |
-| MEŠ_Neo-Assyrian     | 75.9         |
+| U₂_Neo-Assyrian      | 85.7         |
+| RU_Neo-Babylonian    | 84.2         |
 | MEŠ_Neo-Babylonian   | 84.0         |
+| KA_Neo-Babylonian    | 83.7         |
+| KA_Neo-Assyrian      | 82.6         |
 | NI_Neo-Assyrian      | 79.4         |
+| GAR_Neo-Assyrian     | 78.6         |
+| ŠU_Neo-Assyrian      | 78.3         |
+| TA_Neo-Assyrian      | 77.8         |
+| MEŠ_Neo-Assyrian     | 75.9         |
+| E_Neo-Assyrian       | 75.0         |
+| U₂_Neo-Babylonian    | 74.5         |
 | NI_Neo-Babylonian    | 73.9         |
 | RU_Neo-Assyrian      | 63.6         |
-| RU_Neo-Babylonian    | 84.2         |
-| TA_Neo-Assyrian      | 77.8         |
-| TA_Neo-Babylonian    | 90.9         |
+| KI_Neo-Assyrian      | 63.4         |
 | TI_Neo-Assyrian      | 58.3         |
-| TI_Neo-Babylonian    | 94.4         |
-| U₂_Neo-Assyrian      | 85.7         |
-| U₂_Neo-Babylonian    | 74.5         |
-| ŠU_Neo-Assyrian      | 78.3         |
-| ŠU_Neo-Babylonian    | 71.1         |
+
+
+
+
 
 ![Image Alt Text](imgs/heatmap.png)
 ![Image Alt Text](imgs/Resnet50Result.png)
