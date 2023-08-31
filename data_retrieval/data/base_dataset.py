@@ -18,7 +18,8 @@ class Signs_Dataset(Dataset):
         image = read_image(img_path)
         label = self.img_labels.iloc[idx, 1]
         if self.transform:
-            image = self.transform(image)
+            for transform in self.transform:
+                image = transform(image)
         if self.target_transform:
             label = self.target_transform(label)
         return image, label
