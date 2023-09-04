@@ -29,7 +29,7 @@ You need to pass your database connection string to the script's arguments.
 For the baseline, I chose [Resnet50](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet50.html).
 
 ## Training
-* Transforms - Rescale((256,256)), Normalize()
+* Transforms - Rescale((256,256)), Normalize((mean=0.0052, std=0.0018))
 * Optimizer - Adam
 * Loss - Cross Entropy
 * 50 epochs with Early Stopping
