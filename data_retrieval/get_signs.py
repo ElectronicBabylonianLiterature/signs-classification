@@ -21,9 +21,9 @@ for sign in tqdm.tqdm(sign_filter):
             os.mkdir('data')
         os.mkdir(f'data/{sign}')
     pipeline = [
-        {"$match" : {"annotations.data.signName": sign}},
+        {"$match" : {"annotations.data.signName": sign, "annotations.data.type": "HasSign"}},
         {"$unwind" : "$annotations"},
-        {"$match": {"annotations.data.signName": sign}},
+        {"$match": {"annotations.data.signName": sign, "annotations.data.type": "HasSign"}},
         {"$project": {"annotations.data.signName": 1, "annotations.croppedSign": 1, "fragmentNumber": 1}}
     ]
     cursor = annotations.aggregate(pipeline)
