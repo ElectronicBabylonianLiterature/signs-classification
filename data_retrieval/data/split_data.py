@@ -1,4 +1,4 @@
-from data import base_dataset
+import base_dataset
 from sklearn.model_selection import train_test_split
 import numpy as np
 from torch.utils.data import Subset
@@ -15,18 +15,3 @@ def split_data(annotations_path, data_path, transformations):
     test = Subset(data, indices=test_indices)
     
     return train, val, test
-def get_mean_std(annotations_path, data_path, transformations):
-    data = base_dataset.Signs_Dataset(annotations_path, data_path ,transformations)
-    num_pixels = 0
-    mean = 0.0
-    std = 0.0
-    for images, label in data:
-        num_channels, height, width = images.shape
-        num_pixels += height * width
-        mean += torch.mean(images.float(), dim = [1,2]).sum()
-        std += torch.std(images.float(), dim = [1,2]).sum()
-
-    mean /= num_pixels
-    std /= num_pixels
-    del data
-    return mean, std

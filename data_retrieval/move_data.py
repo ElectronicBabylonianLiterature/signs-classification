@@ -1,7 +1,7 @@
 import glob
 import os
-
-for sign_path in glob.glob("data/**"):
+import sys
+for sign_path in glob.glob(sys.argv[1]):
     for era_path in glob.glob(sign_path + "/**"):
         era = era_path.split('\\')[2]
         if era != 'Neo-Assyrian' and era != 'Neo-Babylonian' and era != "Ur III":

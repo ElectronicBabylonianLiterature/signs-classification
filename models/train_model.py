@@ -8,7 +8,7 @@ def train_model(train_data, val_data, model,trained_model_path, batch_size=16, e
     val_loader = torch.utils.data.DataLoader(val_data,
                                              batch_size=batch_size, shuffle=True,
                                              num_workers=4)
-    min_valid_loss = np.inf
+    min_valid_loss = float('inf')
     for epoch in tqdm(range(epochs)):
         train_loss = 0.0
         for data, labels in train_loader:
