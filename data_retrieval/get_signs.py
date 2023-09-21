@@ -19,9 +19,9 @@ for sign in tqdm.tqdm(sign_filter):
     if not os.path.isdir('data'):
             os.mkdir('data')
     pipeline = [
-        {"$match" : {"annotations.data.signName": sign, "annotations.data.type": "HasSign"}},
+        {"$match" : {"annotations.data.signName": sign}},
         {"$unwind" : "$annotations"},
-        {"$match": {"annotations.data.signName": sign, "annotations.data.type": "HasSign"}},
+        {"$match": {"annotations.data.signName": sign}},
         {"$project": {"annotations.data.signName": 1, "annotations.croppedSign": 1, "fragmentNumber": 1}}
     ]
     cursor = annotations.aggregate(pipeline)
@@ -32,11 +32,19 @@ for sign in tqdm.tqdm(sign_filter):
         for fragment_doc in fragment_cursor:
             image_id_era[image_id] = fragment_doc['script']['period']
     for image in tqdm.tqdm(image_id_era):
-        if not os.path.isdir(f'data/{sign}_{image_id_era[image]}'):
-            os.mkdir(f'data/{sign}_{image_id_era[image]}')
+        if image_id_era[image] == 'Neo-Babylonian' or image_id_era[image] == 'Neo-Assyrian':
+            if not os.path.isdir(f'data/{sign}_{image_id_era[image]}'):
+                os.mkdir(f'data/{sign}_{image_id_era[image]}')
         image_cursor = cropped_images.find({"_id": image})
         for doc in image_cursor:
             image_string = doc['image']
             img = Image.open(io.BytesIO(base64.decodebytes(bytes(image_string, "utf-8"))))
-            img.save(f'data/{sign}_{image_id_era[image]}/{counter}.png')    
+            if image_id_era[image] != 'Neo-Assyrian' and image_id_era[image] != 'Neo-Babylonian' and image_id_era[image] != "Ur III":
+                if not os.path.isdir(f'data/{sign}_Neo-Babylonian'):
+                    os.mkdir(f'data/{sign}_Neo-Babylonian')
+                img.save(f'data/{sign}_Neo-Babylonian/{counter}.png')
+            elif image_id_era[image] == 'Ur III':
+                pass
+            else:
+                img.save(f'data/{sign}_{image_id_era[image]}/{counter}.png')    
         counter += 1
