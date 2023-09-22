@@ -37,12 +37,6 @@ For model testing purposes [CDP](https://github.com/urschrei/CDP/tree/master/sta
 
 ## Evaluation
 
-To create a table in a readme.md file, you can use Markdown syntax. Markdown is a lightweight markup language that is commonly used for documentation and README files on platforms like GitHub.
-
-Here's an example of how you can create a table in your readme.md file to display the accuracy for each class:
-
-markdown
-Copy code
 | Class               | Accuracy   |
 |---------------------|------------|
 | E_Neo-Assyrian      | 85.1%      |
