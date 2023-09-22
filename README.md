@@ -63,8 +63,8 @@ For model testing purposes [CDP](https://github.com/urschrei/CDP/tree/master/sta
 | ŠU_Neo-Babylonian   | 95.7%      |
 
 * Overall accuracy: 0.87248322147651
-Overall Top-2 accuracy:  0.9395973086357117
-Overall Top-3 accuracy:  0.9588926434516907
+* Overall Top-2 accuracy:  0.9395973086357117
+* Overall Top-3 accuracy:  0.9588926434516907
 
 
 
