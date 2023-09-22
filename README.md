@@ -36,35 +36,41 @@ For model testing purposes [CDP](https://github.com/urschrei/CDP/tree/master/sta
 * 50 epochs with Early Stopping
 
 ## Evaluation
-| Class              | Accuracy  |
-|--------------------|-----------|
-| E_Neo-Assyrian     | 87.7%     |
-| E_Neo-Babylonian   | 88.9%     |
-| GAR_Neo-Assyrian   | 78.3%     |
-| GAR_Neo-Babylonian | 94.4%     |
-| KA_Neo-Assyrian    | 92.7%     |
-| KA_Neo-Babylonian  | 83.2%     |
-| KI_Neo-Assyrian    | 89.1%     |
-| KI_Neo-Babylonian  | 94.6%     |
-| MEŠ_Neo-Assyrian   | 88.9%     |
-| MEŠ_Neo-Babylonian | 95.1%     |
-| NI_Neo-Assyrian    | 88.7%     |
-| NI_Neo-Babylonian  | 97.1%     |
-| RU_Neo-Assyrian    | 95.9%     |
-| RU_Neo-Babylonian  | 96.9%     |
-| TA_Neo-Assyrian    | 85.2%     |
-| TA_Neo-Babylonian  | 95.3%     |
-| TI_Neo-Assyrian    | 89.1%     |
-| TI_Neo-Babylonian  | 92.5%     |
-| U₂_Neo-Assyrian    | 74.2%     |
-| U₂_Neo-Babylonian  | 89.4%     |
-| ŠU_Neo-Assyrian    | 79.3%     |
-| ŠU_Neo-Babylonian  | 95.7%     |
 
-* Overall accuracy: 0.8984737889847378
-* Overall Top-2 accuracy:  0.9535501003265381
-* Overall Top-3 accuracy:  0.9688122272491455
+To create a table in a readme.md file, you can use Markdown syntax. Markdown is a lightweight markup language that is commonly used for documentation and README files on platforms like GitHub.
 
+Here's an example of how you can create a table in your readme.md file to display the accuracy for each class:
+
+markdown
+Copy code
+| Class               | Accuracy   |
+|---------------------|------------|
+| E_Neo-Assyrian      | 85.1%      |
+| E_Neo-Babylonian    | 83.7%      |
+| GAR_Neo-Assyrian    | 79.7%      |
+| GAR_Neo-Babylonian  | 94.3%      |
+| KA_Neo-Assyrian     | 93.2%      |
+| KA_Neo-Babylonian   | 77.3%      |
+| KI_Neo-Assyrian     | 87.0%      |
+| KI_Neo-Babylonian   | 94.0%      |
+| MEŠ_Neo-Assyrian    | 85.7%      |
+| MEŠ_Neo-Babylonian  | 87.5%      |
+| NI_Neo-Assyrian     | 86.3%      |
+| NI_Neo-Babylonian   | 96.3%      |
+| RU_Neo-Assyrian     | 94.7%      |
+| RU_Neo-Babylonian   | 95.5%      |
+| TA_Neo-Assyrian     | 81.4%      |
+| TA_Neo-Babylonian   | 92.5%      |
+| TI_Neo-Assyrian     | 86.7%      |
+| TI_Neo-Babylonian   | 87.9%      |
+| U₂_Neo-Assyrian     | 68.5%      |
+| U₂_Neo-Babylonian   | 87.0%      |
+| ŠU_Neo-Assyrian     | 69.2%      |
+| ŠU_Neo-Babylonian   | 95.7%      |
+
+* Overall accuracy: 0.87248322147651
+Overall Top-2 accuracy:  0.9395973086357117
+Overall Top-3 accuracy:  0.9588926434516907
 
 
 
