@@ -12,7 +12,7 @@ database = client["ebl"]
 annotations = database["annotations"]
 fragments = database["fragments"]
 cropped_images = database["cropped_sign_images"]
-sign_filter = ["AN", "DIŠ", "A", "MA", "UD","NA"]
+sign_filter = ["AN", "DIŠ", "A", "MA","NA","BAD","AŠ","IGI","UD","ŠU₂","MU","NU","GIŠ","I"]
 counter = 0
 for sign in tqdm.tqdm(sign_filter):
     image_id_era = {}

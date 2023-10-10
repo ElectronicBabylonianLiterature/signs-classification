@@ -3,3 +3,5 @@ data_retrieval/data/**/*.png
 *.jpg
 *.pyc
 data_retrieval/labasi_data/**/*.png
+data_other/**/*.png
+data_retrieval/data_other/**/*.png
