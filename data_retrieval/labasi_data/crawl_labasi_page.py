@@ -34,7 +34,7 @@ def get_signs(url, output):
         "ABZ459 a": "ABZ459a",
         "ABZ598 a": "ABZ598a",
     }
-    signs_filter = {'ABZ597':'GAR', 'ABZ461':'KI', 'ABZ231':'NI', 'ABZ73':'TI', 'ABZ318':'U₂', 
+    signs_filter = {'ABZ579':'A', 'ABZ13':'AN', 'ABZ231':'NI', 'ABZ73':'TI', 'ABZ318':'U₂', 
                     'ABZ533':'MEŠ', 'ABZ15':'KA', 'ABZ139':'TA', 'ABZ354':'ŠU', 'ABZ308':'E', 'ABZ68':'RU'}
     print(url)
     resp = requests.get(url=url)
@@ -88,6 +88,6 @@ def map_to_ABZ(data):
 
 
 if __name__ == "__main__":
-    url = "http://labasi.acdh.oeaw.ac.at/data/api/glyphs/?limit=100&offset=3600"
+    url = "http://labasi.acdh.oeaw.ac.at/data/api/glyphs/?limit=100&offset=0"
     output = Path("./data")
     get_signs(url, output)

@@ -4,7 +4,7 @@ import sys
 import os
 import pandas
 import shutil
-sign_filter = ["GAR","KI", "NI", "U₂", "MEŠ", "KA", "TI", "TA", "ŠU", "E", "RU"]
+sign_filter = ["AN", "DIŠ", "A", "MA","NA","BAD","AŠ","IGI","UD","ŠU₂","MU","NU","GIŠ","I"]
 
 print("Enter connection string", sys.argv)
 
