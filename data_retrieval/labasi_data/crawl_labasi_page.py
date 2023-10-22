@@ -34,8 +34,9 @@ def get_signs(url, output):
         "ABZ459 a": "ABZ459a",
         "ABZ598 a": "ABZ598a",
     }
-    signs_filter = {'ABZ597':'GAR', 'ABZ461':'KI', 'ABZ231':'NI', 'ABZ73':'TI', 'ABZ318':'U₂', 
-                    'ABZ533':'MEŠ', 'ABZ15':'KA', 'ABZ139':'TA', 'ABZ354':'ŠU', 'ABZ308':'E', 'ABZ68':'RU'}
+    signs_filter = {'ABZ13': 'AN', 'ABZ480':'DIŠ', 'ABZ579':'A', 'ABZ342':'MA', 'ABZ69':'BAD', 'ABZ1':'AŠ', 
+                    'ABZ449':'IGI', 'ABZ381':'UD', 'ABZ70':'NA', 'ABZ545':'ŠU₂','ABZ61':'MU','ABZ75':'NU',
+                    'ABZ296':'GIŠ', 'ABZ142':'I'}
     print(url)
     resp = requests.get(url=url)
     data = resp.json()
@@ -47,11 +48,12 @@ def get_signs(url, output):
                 sign_name = LABASI_ABZ_TO_EBL_ABZ[sign_name]
             if sign_name in signs_filter:
                 abz_sign_directory = output / signs_filter[sign_name]
+                abz_sign_directory = Path(str(abz_sign_directory) + '_Neo-Babylonian')
                 if not abz_sign_directory.exists():
                     create_directory(abz_sign_directory)
                 resp = requests.get(url=img_url)
                 name = f"{signs_filter[sign_name]}_{result['identifier']}.{img_url.split('.')[-1]}"
-                with open(output / signs_filter[sign_name] / name, "wb") as f:
+                with open(output / Path(signs_filter[sign_name]+'_Neo-Babylonian') / name, "wb") as f:
                     f.write(resp.content)
     if data["next"] is not None:
         get_signs(data["next"], output)
@@ -88,6 +90,6 @@ def map_to_ABZ(data):
 
 
 if __name__ == "__main__":
-    url = "http://labasi.acdh.oeaw.ac.at/data/api/glyphs/?limit=100&offset=3600"
+    url = "http://labasi.acdh.oeaw.ac.at/data/api/glyphs/?limit=100&offset=0"
     output = Path("./data")
     get_signs(url, output)
