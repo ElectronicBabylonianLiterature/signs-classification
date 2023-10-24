@@ -3,9 +3,7 @@ import shutil
 from pathlib import Path
 from typing import Union, Sequence
 
-import mmcv
 
-mmcv.use_backend("pillow")
 from PIL import Image
 
 
