@@ -24,7 +24,8 @@ For model testing purposes [CDP](https://github.com/urschrei/CDP/tree/master/sta
 
 * Train Dataset - 8882 Images
 * Test Dataset - 1507 Images
-
+  
+Full dataset can be downloaded [here](https://drive.google.com/file/d/1xsEBllly6B-CG4V9P8zOUtX7K3fl0Iwe/view?usp=drive_link)
 
 ## Model Selection
 
