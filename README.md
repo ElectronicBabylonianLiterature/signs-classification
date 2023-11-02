@@ -13,8 +13,7 @@ The results are presented [here](https://github.com/ElectronicBabylonianLiteratu
 - [Model Selection](#model-selection)
 - [Training](#training)
 - [Evaluation](#evaluation)
-- [Contributing](#contributing)
-- [License](#license)
+
 
 ## Dataset and Data Retrieval
 
