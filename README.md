@@ -3,6 +3,7 @@
 ## Overview
 
 This project focuses on building and training a machine-learning model to classify signs. The goal is to correctly identify and classify the era of signs based on their visual features. The project involves data preprocessing, model selection, training, and evaluation.
+The results are presented [here](https://github.com/ElectronicBabylonianLiterature/signs-classification/blob/main/resnet101_full_data.ipynb)
 
 
 ## Table of Contents
