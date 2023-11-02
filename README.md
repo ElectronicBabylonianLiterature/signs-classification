@@ -9,7 +9,6 @@ The results are presented [here](https://github.com/ElectronicBabylonianLiteratu
 ## Table of Contents
 
 - [Dataset](#dataset)
-- [Installation](#installation)
 - [Model Selection](#model-selection)
 - [Training](#training)
 - [Evaluation](#evaluation)
