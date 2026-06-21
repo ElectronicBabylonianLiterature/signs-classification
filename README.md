@@ -23,7 +23,6 @@ This folder contains the notebooks and code for:
 - Tablet fragment matching retrieval
 - Join retrieval experiments
 - Occlusion bias analysis
-```
 
 ## Extended Dataset
 
