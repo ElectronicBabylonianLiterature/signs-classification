@@ -4,6 +4,27 @@
 
 This section summarizes recent extensions to the original sign-classification framework.
 
+## Extension Code
+
+All 2026 extension experiments are located in:
+
+```text
+sign_classification_extension/
+```
+
+This folder contains the notebooks and code for:
+
+- ResNet18 / ResNet50 / ResNet101
+- ConvNeXt Base
+- ViT Base
+- Swin Base
+- Tablet-holdout evaluation
+- Embedding and similarity analysis
+- Tablet fragment matching retrieval
+- Join retrieval experiments
+- Occlusion bias analysis
+```
+
 ## Extended Dataset
 
 The original era-classification dataset has been extended using sign annotations from the Electronic Babylonian Library (EBL).
