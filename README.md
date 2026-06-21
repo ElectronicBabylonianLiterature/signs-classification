@@ -19,8 +19,6 @@ The original era-classification dataset has been extended using sign annotations
 | Validation split | 15% |
 | Test split | 20% |
 
-A tablet-holdout evaluation protocol was introduced to ensure that sign crops originating from the same tablet do not appear in both training and testing sets.
-
 ---
 
 ## Models Evaluated
@@ -60,20 +58,42 @@ Metrics:
 
 ### 2. Sign Similarity Analysis
 
-Embedding-based similarity experiments comparing:
+Embedding-based similarity experiments were performed to investigate whether learned sign embeddings capture historical stylistic variation in addition to sign identity.
 
-- Same sign, same tablet
-- Same sign, different tablet
-- Same sign, same period
-- Same sign, different period
+For each sign class, cosine similarity was measured between signs originating from:
+
+1. The same tablet
+2. Different tablets from the same period
+3. Different tablets from different periods
 
 ### 3. Tablet Similarity Retrieval
 
 Tablet representations were constructed from sign embeddings and used for nearest-neighbor retrieval.
 
+## Tablet Fragment Matching (Tablet-Holdout)
+
+To evaluate whether learned sign embeddings can associate fragments originating from the same tablet, each unseen test tablet was divided into multiple artificial fragments based on the spatial distribution of sign locations. Fragment embeddings were computed by averaging the embeddings of signs contained within each fragment. Retrieval performance was then measured by querying each fragment against all other fragments and identifying fragments originating from the same tablet.
+
+| Model | Recall@1 | Recall@5 | Recall@10 | MRR |
+|---------|---------:|---------:|---------:|---------:|
+| ResNet18 | 0.3428 | 0.5096 | 0.5902 | 0.4262 |
+| ResNet50 | **0.5424** | **0.7106** | **0.7862** | **0.6245** |
+| ResNet101 | 0.4932 | 0.6771 | 0.7455 | 0.5788 |
+| ConvNeXt Base | 0.3272 | 0.5004 | 0.5902 | 0.4153 |
+| ViT Base | 0.4875 | 0.6543 | 0.7327 | 0.5703 |
+| Swin Base | 0.4098 | 0.5823 | 0.6650 | 0.4961 |
+
+### Key Findings
+
+- **ResNet50** achieves the best fragment matching performance across all retrieval metrics.
+- **ResNet101** and **ViT Base** also demonstrate strong tablet-fragment association capability.
+- More than **78%** of ResNet50 queries retrieve a fragment from the same tablet within the top 10 results.
+- The results indicate that learned sign embeddings retain information that allows different fragments from the same unseen tablet to be associated successfully.
+- These findings suggest potential applicability to future tablet-fragment matching and join-discovery tasks.
+
 ### 4. Join Retrieval
 
-Known tablet joins were evaluated using retrieval metrics including:
+Known tablet joins will be evaluated using retrieval metrics including:
 
 - Recall@1
 - Recall@5
