@@ -21,7 +21,7 @@ This folder contains the notebooks and code for:
 - Tablet-holdout evaluation
 - Embedding and similarity analysis
 - Tablet fragment matching retrieval
-- Join retrieval experiments
+- Join retrieval experiments (Remaining)
 - Occlusion bias analysis
 
 ## Extended Dataset
@@ -63,7 +63,7 @@ All models were trained and evaluated using identical tablet-holdout splits to e
 
 ## Experiments
 
-The following experiments were performed for all evaluated models:
+The following experiments were conducted to evaluate sign recognition, embedding quality, tablet-level retrieval, period attribution, and model robustness.
 
 ### 1. Sign Classification
 
@@ -86,13 +86,26 @@ For each sign class, cosine similarity was measured between signs originating fr
 2. Different tablets from the same period
 3. Different tablets from different periods
 
-### 3. Tablet Similarity Retrieval
+Sign purity and tablet purity were additionally measured using the 10 nearest neighbors of each embedding.
+
+### 3. Tablet Fragment Matching and Similarity Retrieval
 
 Tablet representations were constructed from sign embeddings and used for nearest-neighbor retrieval.
 
 ## Tablet Fragment Matching (Tablet-Holdout)
 
-To evaluate whether learned sign embeddings can associate fragments originating from the same tablet, each unseen test tablet was divided into multiple artificial fragments based on the spatial distribution of sign locations. Fragment embeddings were computed by averaging the embeddings of signs contained within each fragment. Retrieval performance was then measured by querying each fragment against all other fragments and identifying fragments originating from the same tablet.
+To evaluate whether learned sign embeddings can associate fragments originating from the same tablet, each unseen test tablet was divided into multiple artificial fragments according to the spatial distribution of its signs.
+
+A fragment-level representation was constructed by averaging the embeddings of the signs contained within each fragment. Each fragment was then used as a query against all remaining fragments.
+
+Retrieval performance was measured using:
+
+- Recall@1
+- Recall@5
+- Recall@10
+- Mean Reciprocal Rank (MRR)
+
+This experiment evaluates the potential of the learned representations for tablet-fragment association and future join-discovery applications.
 
 | Model | Recall@1 | Recall@5 | Recall@10 | MRR |
 |---------|---------:|---------:|---------:|---------:|
@@ -111,18 +124,11 @@ To evaluate whether learned sign embeddings can associate fragments originating 
 - The results indicate that learned sign embeddings retain information that allows different fragments from the same unseen tablet to be associated successfully.
 - These findings suggest potential applicability to future tablet-fragment matching and join-discovery tasks.
 
-### 4. Join Retrieval
-
-Known tablet joins will be evaluated using retrieval metrics including:
-
-- Recall@1
-- Recall@5
-- Recall@10
-- Mean Reciprocal Rank (MRR)
-
 ### 5. Occlusion Bias Analysis
 
-Quantitative occlusion experiments were used to assess model reliance on sign morphology and image-specific artifacts.
+Quantitative occlusion experiments were used to assess whether predictions primarily depend on sign morphology or on image-specific artifacts.
+
+Central and peripheral image regions were systematically masked, and the resulting change in classification confidence was measured separately for correct and incorrect predictions.
 
 ---
 
@@ -131,9 +137,13 @@ Quantitative occlusion experiments were used to assess model reliance on sign mo
 The updated framework produces:
 
 - Sign embeddings
-- Tablet embeddings
+- Tablet and fragment embeddings
 - Similarity matrices
-- Retrieval rankings
+- Fragment-retrieval rankings
+- Tablet-level period predictions
+- Crop-level confidence predictions
+- Period-voting details
+- Accuracy results grouped by confident-crop count 
 - Occlusion sensitivity analyses
 - Grad-CAM visualizations
 
@@ -160,6 +170,270 @@ The updated framework produces:
 - **Best Precision:** ResNet18 (87.12%)
 - **Best Recall:** ResNet18 (83.80%)
 - **Best Macro-F1:** ResNet18 (84.95%)
+
+## Large-Scale Tablet Period Attribution
+
+### Collection Filtering and DETR Processing
+
+The large-scale processing pipeline initially examined **312,148 tablet fragments** from the EBL database.
+
+The fragments were filtered as follows:
+
+| Processing Category | Number of Fragments | Description |
+|---|---:|---|
+| Total fragments examined | 312,148 | Complete set of database fragments considered by the processing script |
+| Skipped with existing annotations | 9,911 | Fragments excluded because sign-level annotations were already available |
+| Skipped without photographs | 216,197 | Fragments excluded because no corresponding tablet image was available |
+| Unannotated fragments processed with DETR | 86,040 | Fragments with available photographs and no existing sign annotations |
+
+The collection totals satisfy:
+
+```text
+86,040 processed fragments
++ 9,911 fragments with annotations
++ 216,197 fragments without photographs
+= 312,148 total fragments examined
+```
+
+Therefore, **312,148** represents the complete collection examined by the filtering pipeline, whereas only **86,040 unannotated fragments with available photographs** were passed through DETR.
+
+DETR produced **1,279,146 automatically detected sign crops**. Among the 86,040 processed fragments, **77,442 fragments produced at least one crop prediction** and entered the subsequent tablet-level period-attribution analysis.
+
+The remaining number of fragments was:
+
+```text
+86,040 - 77,442 = 8,598 fragments
+```
+
+These **8,598 fragments** did not contribute crop predictions to the downstream period-attribution file.
+
+### Dataset Flow Summary
+
+```text
+312,148 total database fragments examined
+│
+├── 9,911 skipped: existing sign annotations
+│
+├── 216,197 skipped: no photograph available
+│
+└── 86,040 unannotated fragments processed with DETR
+    │
+    ├── 77,442 fragments produced crop predictions
+    │   └── 1,279,146 automatically detected sign crops
+    │
+    └── 8,598 fragments produced no downstream crop predictions
+```
+
+For each classification model, only crop predictions satisfying the configured confidence and agreement criteria were retained. The retained crop predictions were then aggregated through tablet-level period voting.
+
+Because confidence filtering was performed independently for each model, the number of retained crops and evaluated fragments differs slightly across architectures.
+
+Results are therefore reported in terms of:
+
+- Crop-prediction retention
+- Fragment evaluation coverage
+- Overall tablet-level period-attribution accuracy
+- Accuracy grouped by the number of confident crops
+
+### Period-Attribution Pipeline
+
+The large-scale period-attribution pipeline consists of the following steps:
+
+1. Detect candidate sign regions from each tablet-fragment image.
+2. Classify each detected crop using a tablet-holdout-trained sign classifier.
+3. Remove crop predictions that do not satisfy the confidence and agreement thresholds.
+4. Obtain the historical-period prediction associated with each retained sign crop.
+5. Aggregate sign-level period predictions using majority voting.
+6. Compare the predicted tablet period with the available period metadata.
+
+### Inference and Evaluation Settings
+
+The large-scale period-attribution experiment used the following thresholds and metadata source:
+
+| Component | Setting |
+|---|---|
+| DETR detection threshold | Detection confidence $\geq 0.60$ |
+| Sign-classification threshold | Crop-prediction confidence $\geq 0.50$ |
+| Reference period | MongoDB `script.period` field |
+
+Only DETR detections with confidence scores of at least **0.60** were retained as candidate sign crops. Each retained crop was then classified using a tablet-holdout-trained sign classifier, and crop predictions with confidence scores below **0.50** were excluded from tablet-level voting.
+
+The predicted tablet period was compared with the reference period stored in the MongoDB `script.period` field.
+
+---
+
+### Crop-Prediction Retention and Fragment Coverage
+
+| Model | Total Crop Predictions | Crop Predictions Used | Crop Usage (%) | Fragments Evaluated | Coverage (%) | Without Confident Crops |
+|---|---:|---:|---:|---:|---:|---:|
+| ResNet18 Tablet Holdout | 1,279,146 | 624,798 | 48.84 | 70,463 | 90.99 | 6,979 |
+| ResNet50 Tablet Holdout | 1,279,146 | 635,891 | 49.71 | 69,789 | 90.12 | 7,653 |
+| ResNet101 Tablet Holdout | 1,279,146 | 637,601 | 49.85 | 70,064 | 90.47 | 7,378 |
+| ConvNeXt Base | 1,279,146 | 730,904 | 57.14 | 71,686 | 92.57 | 5,756 |
+| ViT Base | 1,279,146 | 670,884 | 52.45 | 70,541 | 91.09 | 6,901 |
+| Swin Base | 1,279,146 | 835,693 | **65.33** | 73,687 | **95.15** | **3,755** |
+
+Crop-prediction usage is calculated as:
+
+$$
+\text{Crop Usage (\%)} =
+\frac{\text{Crop Predictions Used}}
+{\text{Total Crop Predictions}}
+\times 100
+$$
+
+Fragment evaluation coverage is calculated as:
+
+$$
+\text{Coverage (\%)} =
+\frac{\text{Fragments Evaluated}}
+{\text{Fragments Before Thresholding}}
+\times 100
+$$
+
+#### Key Findings
+
+- **Swin Base** retains the largest proportion of crop predictions, using **65.33%** of all detected crops.
+- Swin Base evaluates **73,687 fragments**, corresponding to the highest coverage of **95.15%**.
+- **ConvNeXt Base** provides the second-highest fragment coverage at **92.57%**.
+- **ResNet50** evaluates the fewest fragments, with a coverage of **90.12%**.
+- The lower coverage of ResNet50 should be considered together with its higher period-attribution accuracy, since it produces predictions for a slightly smaller and potentially more confidently filtered subset of fragments.
+
+---
+
+### Overall Tablet-Level Period-Attribution Performance
+
+| Model | Fragments Evaluated | Correct | Incorrect | Accuracy (%) |
+|---|---:|---:|---:|---:|
+| ResNet18 Tablet Holdout | 70,463 | 51,459 | 19,004 | 73.03 |
+| ResNet50 Tablet Holdout | 69,789 | 52,778 | 17,011 | **75.63** |
+| ResNet101 Tablet Holdout | 70,064 | 49,964 | 20,100 | 71.31 |
+| ConvNeXt Base | 71,686 | 52,363 | 19,323 | 73.04 |
+| ViT Base | 70,541 | 50,523 | 20,018 | 71.62 |
+| Swin Base | 73,687 | 53,885 | 19,802 | 73.13 |
+
+Tablet-level period-attribution accuracy is calculated as:
+
+$$
+\text{Tablet Accuracy (\%)} =
+\frac{\text{Correct Period Predictions}}
+{\text{Fragments Evaluated}}
+\times 100
+$$
+
+#### Key Findings
+
+- **ResNet50** achieves the highest overall tablet-level period-attribution accuracy of **75.63%**.
+- ResNet50 correctly predicts the periods of **52,778 out of 69,789 evaluated fragments**.
+- **Swin Base** achieves an accuracy of **73.13%** while providing the highest fragment coverage.
+- **ConvNeXt Base** and **ResNet18** obtain similar accuracies of **73.04%** and **73.03%**, respectively.
+- **ResNet101** and **ViT Base** obtain the lowest overall accuracies, at **71.31%** and **71.62%**, respectively.
+- These results reveal a trade-off between prediction accuracy and collection coverage:
+  - ResNet50 provides the highest period-attribution accuracy.
+  - Swin Base provides predictions for the largest proportion of the collection.
+
+---
+
+### Accuracy by Number of Confident Crops
+
+To investigate how the amount of sign-level evidence affects tablet-level period attribution, fragments were divided into four groups according to the number of confident crop predictions available for voting:
+
+- 1 confident crop
+- 2–4 confident crops
+- 5–9 confident crops
+- 10 or more confident crops
+
+The `Share (%)` column indicates the percentage of all evaluated fragments for a model that belongs to the corresponding crop-count group.
+
+| Model | Crop Group | Fragments | Correct | Incorrect | Accuracy (%) | Share (%) |
+|---|---|---:|---:|---:|---:|---:|
+| ResNet18 Tablet Holdout | 1 confident crop | 9,004 | 4,858 | 4,146 | 53.95 | 12.78 |
+| ResNet18 Tablet Holdout | 2–4 confident crops | 19,537 | 13,113 | 6,424 | 67.12 | 27.73 |
+| ResNet18 Tablet Holdout | 5–9 confident crops | 19,640 | 15,454 | 4,186 | 78.69 | 27.87 |
+| ResNet18 Tablet Holdout | 10 or more confident crops | 22,282 | 18,034 | 4,248 | 80.94 | 31.62 |
+| ResNet50 Tablet Holdout | 1 confident crop | 9,001 | 5,155 | 3,846 | **57.27** | 12.90 |
+| ResNet50 Tablet Holdout | 2–4 confident crops | 18,778 | 13,216 | 5,562 | **70.38** | 26.91 |
+| ResNet50 Tablet Holdout | 5–9 confident crops | 19,017 | 15,518 | 3,499 | **81.60** | 27.25 |
+| ResNet50 Tablet Holdout | 10 or more confident crops | 22,993 | 18,889 | 4,104 | **82.15** | 32.95 |
+| ResNet101 Tablet Holdout | 1 confident crop | 9,000 | 4,964 | 4,036 | 55.16 | 12.85 |
+| ResNet101 Tablet Holdout | 2–4 confident crops | 18,968 | 12,584 | 6,384 | 66.34 | 27.07 |
+| ResNet101 Tablet Holdout | 5–9 confident crops | 19,278 | 14,536 | 4,742 | 75.40 | 27.51 |
+| ResNet101 Tablet Holdout | 10 or more confident crops | 22,818 | 17,880 | 4,938 | 78.36 | 32.57 |
+| ConvNeXt Base | 1 confident crop | 7,986 | 4,505 | 3,481 | 56.41 | 11.14 |
+| ConvNeXt Base | 2–4 confident crops | 17,794 | 11,914 | 5,880 | 66.96 | 24.82 |
+| ConvNeXt Base | 5–9 confident crops | 19,013 | 14,664 | 4,349 | 77.13 | 26.52 |
+| ConvNeXt Base | 10 or more confident crops | 26,893 | 21,280 | 5,613 | 79.13 | 37.51 |
+| ViT Base | 1 confident crop | 8,610 | 4,686 | 3,924 | 54.43 | 12.21 |
+| ViT Base | 2–4 confident crops | 18,553 | 12,174 | 6,379 | 65.62 | 26.30 |
+| ViT Base | 5–9 confident crops | 19,164 | 14,480 | 4,684 | 75.56 | 27.17 |
+| ViT Base | 10 or more confident crops | 24,214 | 19,183 | 5,031 | 79.22 | 34.33 |
+| Swin Base | 1 confident crop | 7,260 | 3,951 | 3,309 | 54.42 | 9.85 |
+| Swin Base | 2–4 confident crops | 16,617 | 10,907 | 5,710 | 65.64 | 22.55 |
+| Swin Base | 5–9 confident crops | 19,228 | 14,658 | 4,570 | 76.23 | 26.09 |
+| Swin Base | 10 or more confident crops | 30,582 | 24,369 | 6,213 | 79.68 | **41.50** |
+
+Accuracy within each crop-count group is calculated as:
+
+$$
+\text{Group Accuracy (\%)} =
+\frac{\text{Correct Predictions in Group}}
+{\text{Fragments in Group}}
+\times 100
+$$
+
+The share of evaluated fragments is calculated as:
+
+$$
+\text{Share (\%)} =
+\frac{\text{Fragments in Crop Group}}
+{\text{Total Evaluated Fragments}}
+\times 100
+$$
+
+---
+
+### Crop-Count Accuracy Summary
+
+| Model | 1 Crop | 2–4 Crops | 5–9 Crops | 10+ Crops |
+|---|---:|---:|---:|---:|
+| ResNet18 | 53.95 | 67.12 | 78.69 | 80.94 |
+| ResNet50 | **57.27** | **70.38** | **81.60** | **82.15** |
+| ResNet101 | 55.16 | 66.34 | 75.40 | 78.36 |
+| ConvNeXt Base | 56.41 | 66.96 | 77.13 | 79.13 |
+| ViT Base | 54.43 | 65.62 | 75.56 | 79.22 |
+| Swin Base | 54.42 | 65.64 | 76.23 | 79.68 |
+
+#### Key Findings
+
+- Period-attribution accuracy consistently increases as more confident sign crops become available.
+- Fragments supported by only one confident crop achieve approximately **54–57% accuracy**.
+- Fragments supported by at least 10 confident crops achieve approximately **78–82% accuracy**.
+- **ResNet50 achieves the highest accuracy in every crop-count category.**
+- ResNet50 improves from **57.27%** with one confident crop to **82.15%** with at least 10 confident crops.
+- ResNet50 achieves **81.60%** accuracy with 5–9 confident crops and **82.15%** with at least 10 crops.
+- The relatively small improvement between the final two groups suggests that ResNet50 performance begins to saturate once approximately five confident sign predictions are available.
+- **Swin Base** places **41.50%** of its evaluated fragments in the 10-or-more-crop group, the largest proportion among all models.
+- **ConvNeXt Base** also provides high confident-crop coverage, with **37.51%** of its evaluated fragments containing at least 10 confident predictions.
+- Increasing model depth from ResNet50 to ResNet101 does not improve tablet-level period attribution.
+- Transformer-based architectures provide broader confident-crop coverage in some cases but do not outperform ResNet50 in period-attribution accuracy.
+
+---
+
+### Interpretation
+
+The results demonstrate that tablet-level period attribution benefits substantially from aggregating evidence across multiple recognized signs.
+
+Predictions based on a single confident crop are comparatively unreliable because one incorrect or ambiguous sign directly determines the tablet-level result. As the number of confident crops increases, the influence of individual sign-classification errors is reduced through majority voting.
+
+ResNet50 provides the strongest balance between sign-level reliability and tablet-level voting performance. It achieves:
+
+- The highest overall tablet-level accuracy
+- The highest accuracy in every crop-count group
+- More than 81% accuracy when at least five confident crops are available
+
+Swin Base provides the greatest collection coverage by retaining more crop predictions and evaluating more fragments. However, its tablet-level period-attribution accuracy remains below that of ResNet50.
+
+These results indicate that the number of confident detected signs can serve as a practical reliability indicator for tablet-level period attribution. Predictions supported by at least five confident crops are substantially more reliable than predictions based on only one to four crops.
 
 ## Embedding Quality (k = 10 Nearest Neighbors)
 
@@ -188,7 +462,7 @@ Higher sign purity indicates better sign discrimination, while lower tablet puri
 
 Average cosine similarity between signs belonging to the same sign class.
 
-| Model | Same Tablet | Same Period Different Tablet | Different Period Different Tablet | Same Tablet − Same Period | Same Period − Different Period |
+| Model | Same Tablet | Same Period Different Tablet | Different Period Different Tablet | Tablet Effect | Period Effect |
 |---------|---------|---------|---------|---------|---------|
 | ResNet18 | 0.8264 | 0.7048 | 0.4708 | 0.1216 | 0.2341 |
 | ResNet50 | 0.8031 | 0.6642 | 0.4812 | 0.1389 | 0.1830 |
@@ -240,7 +514,7 @@ The tablet-holdout protocol ensures that signs originating from the same tablet 
 
 ## Same-Sign Similarity by Tablet and Period (Tablet-Holdout)
 
-| Model | Same Tablet | Same Period Different Tablet | Different Period Different Tablet | Same Tablet − Same Period | Same Period − Different Period |
+| Model | Same Tablet | Same Period Different Tablet | Different Period Different Tablet | Tablet Effect | Period Effect |
 |---------|---------|---------|---------|---------|---------|
 | ResNet18 | **0.7860** | **0.6955** | 0.4967 | 0.0905 | 0.1988 |
 | ResNet50 | 0.7730 | 0.6444 | 0.4288 | 0.1285 | 0.2157 |
@@ -299,6 +573,29 @@ The observed behavior suggests that the learned representations are driven mainl
 Planned extensions include:
 
 - Automatic join discovery
+
+---
+
+# Original Implementation
+
+The code and experiments below this section correspond to the original era-classification framework presented in:
+
+> Yugay, V., Paliwal, K., Cobanoglu, Y., Sáenz, L., Gogokhia, E., Gordin, S., & Jiménez, E. (2024). *Stylistic classification of cuneiform signs using convolutional neural networks*. **IT – Information Technology**, 66(1), 15–27. De Gruyter Oldenbourg.
+
+```bibtex
+@article{yugay2024stylistic,
+  title={Stylistic classification of cuneiform signs using convolutional neural networks},
+  author={Yugay, Vasiliy and Paliwal, Kartik and Cobanoglu, Yunus and Sáenz, Luis and Gogokhia, Ekaterine and Gordin, Shai and Jiménez, Enrique},
+  journal={IT-Information Technology},
+  volume={66},
+  number={1},
+  pages={15--27},
+  year={2024},
+  publisher={De Gruyter Oldenbourg}
+}
+```
+
+The original code reproduces the experiments described in the above publication, while the preceding sections document the 2026 extensions, including expanded sign classification, tablet-holdout evaluation, embedding analysis, fragment retrieval, and additional experiments.
 
 # Original Era Classification Experiments
 
