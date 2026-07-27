@@ -435,6 +435,109 @@ Swin Base provides the greatest collection coverage by retaining more crop predi
 
 These results indicate that the number of confident detected signs can serve as a practical reliability indicator for tablet-level period attribution. Predictions supported by at least five confident crops are substantially more reliable than predictions based on only one to four crops.
 
+---
+
+## Large-Scale Fragment Retrieval on the Unannotated Collection
+
+### Effect of the Minimum Crop Threshold
+
+This experiment evaluates fragment retrieval at collection scale using automatically detected signs from the large-scale unannotated-tablet collection. Artificial query fragments were generated from eligible source fragments, and each query was compared against the remaining source-fragment collection.
+
+To investigate how the amount of available sign evidence affects retrieval performance, the experiment was repeated using different minimum numbers of DETR-detected sign crops per source fragment. Source fragments containing fewer detected crops than the selected threshold were excluded from retrieval. The DETR detection-confidence threshold was fixed at **0.60** for all architectures and experimental settings.
+
+---
+
+### ResNet18
+
+| Minimum Crops | Query / Artificial Fragments | Source Fragments | Recall@1 | Recall@5 | Recall@10 | MRR |
+|:-------------:|-----------------------------:|-----------------:|----------:|----------:|-----------:|----------:|
+| 10 | 46,063 | 14,308 | 0.133990 | 0.247010 | 0.305473 | 0.192851 |
+| 20 | 45,997 | 14,275 | 0.134161 | 0.247212 | 0.305759 | 0.193042 |
+| 30 | 40,587 | 11,570 | 0.150738 | 0.276690 | 0.341538 | 0.216068 |
+| 40 | 27,723 | 7,042 | **0.201998** | **0.364355** | **0.446957** | **0.284591** |
+
+---
+
+### ResNet50
+
+| Minimum Crops | Query / Artificial Fragments | Source Fragments | Recall@1 | Recall@5 | Recall@10 | MRR |
+|:-------------:|-----------------------------:|-----------------:|----------:|----------:|-----------:|----------:|
+| 10 | 46,063 | 14,308 | 0.287650 | 0.455680 | 0.528363 | 0.369602 |
+| 20 | 45,997 | 14,275 | 0.287910 | 0.455986 | 0.528621 | 0.369882 |
+| 30 | 40,587 | 11,570 | 0.321211 | 0.504965 | 0.582157 | 0.410144 |
+| 40 | 27,723 | 7,042 | **0.413916** | **0.631281** | **0.712802** | **0.516278** |
+
+---
+
+### ResNet101
+
+| Minimum Crops | Query / Artificial Fragments | Source Fragments | Recall@1 | Recall@5 | Recall@10 | MRR |
+|:-------------:|-----------------------------:|-----------------:|----------:|----------:|-----------:|----------:|
+| 10 | 46,063 | 14,308 | 0.255129 | 0.410373 | 0.478605 | 0.331591 |
+| 20 | 45,997 | 14,275 | 0.255299 | 0.410592 | 0.478923 | 0.331805 |
+| 30 | 40,587 | 11,570 | 0.285362 | 0.456033 | 0.529603 | 0.368844 |
+| 40 | 27,723 | 7,042 | **0.372074** | **0.576417** | **0.658190** | **0.469806** |
+
+---
+
+### ConvNeXt Base
+
+| Minimum Crops | Query / Artificial Fragments | Source Fragments | Recall@1 | Recall@5 | Recall@10 | MRR |
+|:-------------:|-----------------------------:|-----------------:|----------:|----------:|-----------:|----------:|
+| 10 | 46,063 | 14,308 | 0.116666 | 0.219004 | 0.274429 | 0.170777 |
+| 20 | 45,997 | 14,275 | 0.116682 | 0.219036 | 0.274518 | 0.170830 |
+| 30 | 40,587 | 11,570 | 0.132136 | 0.247271 | 0.308867 | 0.192557 |
+| 40 | 27,723 | 7,042 | 0.178769 | 0.326299 | 0.401652 | 0.254810 |
+| 50 | 18,638 | 4,670 | 0.219069 | 0.390439 | 0.473227 | 0.304688 |
+| 60 | 12,813 | 3,205 | 0.249590 | 0.437602 | 0.525014 | 0.341719 |
+| 70 | 8,838 | 2,210 | **0.277325** | **0.473637** | **0.558158** | **0.372093** |
+
+---
+
+### ViT Base
+
+| Minimum Crops | Query / Artificial Fragments | Source Fragments | Recall@1 | Recall@5 | Recall@10 | MRR |
+|:-------------:|-----------------------------:|-----------------:|----------:|----------:|-----------:|----------:|
+| 10 | 46,063 | 14,308 | 0.238152 | 0.394112 | 0.465536 | 0.315260 |
+| 20 | 45,997 | 14,275 | 0.238189 | 0.394330 | 0.465770 | 0.315382 |
+| 30 | 40,587 | 11,570 | 0.265824 | 0.437726 | 0.514795 | 0.350249 |
+| 40 | 27,723 | 7,042 | 0.344046 | 0.549616 | 0.634888 | 0.442391 |
+| 50 | 18,638 | 4,670 | 0.405194 | 0.625496 | 0.711450 | 0.508485 |
+| 60 | 12,813 | 3,205 | 0.443924 | 0.671427 | 0.755092 | 0.549571 |
+| 70 | 8,838 | 2,210 | **0.478276** | **0.702195** | **0.785246** | **0.582742** |
+
+---
+
+### Swin Base
+
+| Minimum Crops | Query / Artificial Fragments | Source Fragments | Recall@1 | Recall@5 | Recall@10 | MRR |
+|:-------------:|-----------------------------:|-----------------:|----------:|----------:|-----------:|----------:|
+| 10 | 46,063 | 14,308 | 0.163320 | 0.294206 | 0.360723 | 0.230260 |
+| 20 | 45,997 | 14,275 | 0.163511 | 0.294454 | 0.361002 | 0.230474 |
+| 30 | 40,587 | 11,570 | 0.184148 | 0.330574 | 0.404588 | 0.258623 |
+| 40 | 27,723 | 7,042 | 0.245608 | 0.430725 | 0.517332 | 0.336672 |
+| 50 | 18,638 | 4,670 | 0.295740 | 0.504722 | 0.595665 | 0.396285 |
+| 60 | 12,813 | 3,205 | 0.330446 | 0.549598 | 0.643955 | 0.435483 |
+| 70 | 8,838 | 2,210 | **0.357547** | **0.584069** | **0.681376** | **0.466152** |
+
+---
+
+### Key Findings
+
+- Retrieval performance improves consistently as the minimum crop threshold increases, indicating that fragment representations become more reliable when constructed from a larger number of detected signs.
+
+- Increasing the threshold substantially reduces collection coverage. The number of query/artificial fragments decreases from **46,063** at the 10-crop threshold to **8,838** at the 70-crop threshold, while the number of eligible source fragments decreases from **14,308** to **2,210**.
+
+- **ResNet50** achieves the strongest retrieval performance among all ResNet architectures, reaching **Recall@1 = 0.413916** and **MRR = 0.516278** at the 40-crop threshold.
+
+- **ViT Base** achieves the highest overall retrieval performance at the higher thresholds, reaching **Recall@1 = 0.478276**, **Recall@10 = 0.785246**, and **MRR = 0.582742** at the 70-crop threshold.
+
+- **Swin Base** consistently outperforms ConvNeXt Base at higher thresholds, although both remain below ViT Base.
+
+- These experiments demonstrate a clear trade-off between retrieval accuracy and collection coverage. Higher crop thresholds produce more discriminative fragment representations but restrict retrieval to larger, information-rich fragments.
+
+- For a practical large-scale retrieval system, a minimum threshold of **30–40 detected crops per source fragment** provides a favorable balance between retrieval performance and dataset coverage.
+
 ## Embedding Quality (k = 10 Nearest Neighbors)
 
 - **Sign Purity** measures how often neighboring embeddings belong to the same sign class.
