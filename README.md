@@ -2,7 +2,7 @@
 
 # Repository Updates (2026)
 
-This section summarizes recent extensions to the original sign-classification framework.
+This repository extends the original sign-classification framework with tablet-holdout evaluation, embedding analysis, fragment retrieval, large-scale period attribution, and large-scale fragment retrieval experiments.
 
 ## Extension Code
 
@@ -20,8 +20,8 @@ This folder contains the notebooks and code for:
 - Swin Base
 - Tablet-holdout evaluation
 - Embedding and similarity analysis
-- Tablet fragment matching retrieval
-- Join retrieval experiments (Remaining)
+- Tablet-holdout fragment matching
+- Large-scale fragment retrieval on the unannotated collection
 - Occlusion bias analysis
 
 ## Extended Dataset
@@ -63,7 +63,14 @@ All models were trained and evaluated using identical tablet-holdout splits to e
 
 ## Experiments
 
-The following experiments were conducted to evaluate sign recognition, embedding quality, tablet-level retrieval, period attribution, and model robustness.
+The following experiments were conducted to evaluate:
+
+- Sign classification
+- Sign similarity analysis
+- Tablet-holdout fragment matching
+- Large-scale fragment retrieval on the unannotated collection
+- Tablet-level period attribution
+- Occlusion robustness
 
 ### 1. Sign Classification
 
@@ -90,7 +97,7 @@ Sign purity and tablet purity were additionally measured using the 10 nearest ne
 
 ### 3. Tablet Fragment Matching and Similarity Retrieval
 
-Tablet representations were constructed from sign embeddings and used for nearest-neighbor retrieval.
+Tablet representations were constructed from sign embeddings and used for nearest-neighbor retrieval. This experiment uses only unseen annotated tablets from the tablet-holdout split and should not be confused with the large-scale retrieval experiment presented later.
 
 ## Tablet Fragment Matching (Tablet-Holdout)
 
@@ -124,7 +131,7 @@ This experiment evaluates the potential of the learned representations for table
 - The results indicate that learned sign embeddings retain information that allows different fragments from the same unseen tablet to be associated successfully.
 - These findings suggest potential applicability to future tablet-fragment matching and join-discovery tasks.
 
-### 5. Occlusion Bias Analysis
+### 4. Occlusion Bias Analysis
 
 Quantitative occlusion experiments were used to assess whether predictions primarily depend on sign morphology or on image-specific artifacts.
 
@@ -144,6 +151,8 @@ The updated framework produces:
 - Crop-level confidence predictions
 - Period-voting details
 - Accuracy results grouped by confident-crop count 
+- Large-scale fragment retrieval benchmarks
+- Retrieval performance across minimum crop thresholds
 - Occlusion sensitivity analyses
 - Grad-CAM visualizations
 
@@ -443,9 +452,11 @@ These results indicate that the number of confident detected signs can serve as 
 
 This experiment evaluates fragment retrieval at collection scale using automatically detected signs from the large-scale unannotated-tablet collection. Artificial query fragments were generated from eligible source fragments, and each query was compared against the remaining source-fragment collection.
 
-To investigate how the amount of available sign evidence affects retrieval performance, the experiment was repeated using different minimum numbers of DETR-detected sign crops per source fragment. Source fragments containing fewer detected crops than the selected threshold were excluded from retrieval. The DETR detection-confidence threshold was fixed at **0.60** for all architectures and experimental settings.
+To investigate how the amount of available sign evidence affects retrieval performance, the experiment was repeated using different minimum numbers of DETR-detected sign crops per source fragment. Source fragments containing fewer detected crops than the selected threshold were excluded from retrieval. The DETR detection-confidence threshold was fixed at **0.60** for all architectures and experimental settings. Unlike the tablet-holdout retrieval experiment, this experiment performs retrieval over the large-scale unannotated collection using automatically detected sign crops. Retrieval is therefore substantially more challenging because the collection is much larger and contains only automatically generated sign representations.
 
 ---
+
+Each eligible source fragment was divided into multiple artificial query fragments. Consequently, the number of query fragments is larger than the number of original source fragments.
 
 ### ResNet18
 
@@ -536,7 +547,7 @@ To investigate how the amount of available sign evidence affects retrieval perfo
 
 - These experiments demonstrate a clear trade-off between retrieval accuracy and collection coverage. Higher crop thresholds produce more discriminative fragment representations but restrict retrieval to larger, information-rich fragments.
 
-- For a practical large-scale retrieval system, a minimum threshold of **30–40 detected crops per source fragment** provides a favorable balance between retrieval performance and dataset coverage.
+- For a practical large-scale retrieval system, a minimum threshold of **xx-xx detected crops per source fragment** provides a favorable balance between retrieval performance and dataset coverage.
 
 ## Embedding Quality (k = 10 Nearest Neighbors)
 
@@ -668,14 +679,6 @@ Occlusion experiments were performed by systematically masking image regions and
 ### Interpretation
 
 The observed behavior suggests that the learned representations are driven mainly by sign structure and shape rather than tablet-specific backgrounds, illumination patterns, or image acquisition artifacts.
-
----
-
-## Future Work
-
-Planned extensions include:
-
-- Automatic join discovery
 
 ---
 
