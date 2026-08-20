@@ -20,7 +20,7 @@ This folder contains the notebooks and code for:
 - Swin Base
 - Tablet-holdout evaluation
 - Embedding and similarity analysis
-- Tablet-holdout fragment matching
+- Artificial and spatially divided-fragment retrieval on the tablet-holdout set
 - Large-scale fragment retrieval on the unannotated collection
 - Occlusion bias analysis
 
@@ -63,14 +63,16 @@ All models were trained and evaluated using identical tablet-holdout splits to e
 
 ## Experiments
 
-The following experiments were conducted to evaluate:
+The following experiments were conducted:
 
-- Sign classification
-- Sign similarity analysis
-- Tablet-holdout fragment matching
-- Large-scale fragment retrieval on the unannotated collection
-- Tablet-level period attribution
-- Occlusion robustness
+- Sign classification using image-level and tablet-holdout splits
+- Sign embedding and similarity analysis
+- Artificial fragment retrieval on the tablet-holdout set
+- Spatially divided-fragment retrieval on the tablet-holdout set
+- Tablet-level period attribution on the large-scale unannotated collection
+- Large-scale fragment retrieval using automatically detected sign crops
+- Embedding-quality evaluation using sign and tablet neighborhood purity
+- Occlusion bias and robustness analysis
 
 ### 1. Sign Classification
 
@@ -97,9 +99,9 @@ Sign purity and tablet purity were additionally measured using the 10 nearest ne
 
 ### 3. Tablet Fragment Matching and Similarity Retrieval
 
-Tablet representations were constructed from sign embeddings and used for nearest-neighbor retrieval. This experiment uses only unseen annotated tablets from the tablet-holdout split and should not be confused with the large-scale retrieval experiment presented later.
+Tablet-holdout retrieval was evaluated using two complementary settings: annotation-based artificial fragments and spatial image fragments extracted directly from the original tablet photographs. These experiments use only unseen annotated tablets and should not be confused with the large-scale retrieval experiment presented later.
 
-## Tablet Fragment Matching (Tablet-Holdout)
+#### 3.1 Artificial Fragment Retrieval (Tablet-Holdout)
 
 To evaluate whether learned sign embeddings can associate fragments originating from the same tablet, each unseen test tablet was divided into multiple artificial fragments according to the spatial distribution of its signs.
 
@@ -112,24 +114,9 @@ Retrieval performance was measured using:
 - Recall@10
 - Mean Reciprocal Rank (MRR)
 
-This experiment evaluates the potential of the learned representations for tablet-fragment association and future join-discovery applications.
+#### 3.2 Spatially Divided-Fragment Retrieval (Tablet-Holdout)
 
-| Model | Recall@1 | Recall@5 | Recall@10 | MRR |
-|---------|---------:|---------:|---------:|---------:|
-| ResNet18 | 0.3428 | 0.5096 | 0.5902 | 0.4262 |
-| ResNet50 | **0.5424** | **0.7106** | **0.7862** | **0.6245** |
-| ResNet101 | 0.4932 | 0.6771 | 0.7455 | 0.5788 |
-| ConvNeXt Base | 0.3272 | 0.5004 | 0.5902 | 0.4153 |
-| ViT Base | 0.4875 | 0.6543 | 0.7327 | 0.5703 |
-| Swin Base | 0.4098 | 0.5823 | 0.6650 | 0.4961 |
-
-### Key Findings
-
-- **ResNet50** achieves the best fragment matching performance across all retrieval metrics.
-- **ResNet101** and **ViT Base** also demonstrate strong tablet-fragment association capability.
-- More than **78%** of ResNet50 queries retrieve a fragment from the same tablet within the top 10 results.
-- The results indicate that learned sign embeddings retain information that allows different fragments from the same unseen tablet to be associated successfully.
-- These findings suggest potential applicability to future tablet-fragment matching and join-discovery tasks.
+Unlike the preceding annotation-based artificial-fragment experiment, this evaluation directly divided the original tablet photographs into spatial image fragments using `divide_tablet_photo()`. The embeddings of annotated signs assigned to each fragment were averaged, L2-normalized, and compared using cosine similarity. Only fragments containing at least two annotated signs were retained.
 
 ### 4. Occlusion Bias Analysis
 
@@ -160,7 +147,7 @@ The updated framework produces:
 
 ## Results
 
-## Sign Classification Performance (Image-Level Split)
+### 1. Sign Classification Performance (Image-Level Split)
 
 | Model | Top-1 | Top-2 | Top-3 | Precision | Recall | Macro-F1 |
 |---------|---------|---------|---------|---------|---------|---------|
@@ -171,7 +158,7 @@ The updated framework produces:
 | ViT Base | 0.8188 | 0.9121 | 0.9414 | 0.8365 | 0.7957 | 0.8048 |
 | Swin Base | 0.8519 | **0.9329** | **0.9543** | 0.8575 | 0.8371 | 0.8409 |
 
-### Best Performing Models
+#### Best Performing Models
 
 - **Best Top-1 Accuracy:** ResNet18 (85.55%)
 - **Best Top-2 Accuracy:** Swin Base (93.29%)
@@ -180,9 +167,186 @@ The updated framework produces:
 - **Best Recall:** ResNet18 (83.80%)
 - **Best Macro-F1:** ResNet18 (84.95%)
 
-## Large-Scale Tablet Period Attribution
+---
 
-### Collection Filtering and DETR Processing
+### 2. Sign Classification Performance (Tablet-Holdout)
+
+The tablet-holdout protocol ensures that signs originating from the same tablet never appear in both training and testing sets, providing a realistic evaluation of model generalization to previously unseen tablets.
+
+| Model | Top-1 | Top-2 | Top-3 | Precision | Recall | Macro-F1 |
+|---------|---------|---------|---------|---------|---------|---------|
+| ResNet18 | 0.7371 | 0.8426 | 0.8852 | 0.7604 | 0.7203 | 0.7169 |
+| ResNet50 | 0.7412 | 0.8524 | 0.8915 | **0.7700** | 0.7258 | 0.7228 |
+| ResNet101 | 0.7465 | 0.8528 | 0.8903 | 0.7696 | 0.7375 | 0.7280 |
+| ConvNeXt Base | **0.7572** | 0.8679 | **0.9102** | 0.7682 | **0.7413** | **0.7296** |
+| ViT Base | 0.7054 | 0.8205 | 0.8671 | 0.7224 | 0.6911 | 0.6773 |
+| Swin Base | 0.7465 | 0.8556 | 0.8985 | 0.7564 | 0.7307 | 0.7217 |
+
+#### Key Findings
+
+- **ConvNeXt Base** achieves the best overall tablet-holdout performance with:
+  - Highest Top-1 Accuracy (**75.72%**)
+  - Highest Top-3 Accuracy (**91.02%**)
+  - Highest Recall (**74.13%**)
+  - Highest Macro-F1 (**72.96%**)
+
+- **ResNet50** achieves the highest Precision (**77.00%**).
+
+- **Swin Base** performs competitively with ResNet101 despite using a transformer-based architecture.
+
+- **ViT Base** shows the largest performance drop under tablet-holdout evaluation, suggesting lower robustness to unseen tablet styles compared to ConvNeXt, Swin, and ResNet architectures.
+
+- The relatively small gap between ConvNeXt Base and ResNet101 indicates that both CNN-based architectures generalize well to previously unseen tablets.
+
+---
+
+### 3. Embedding Quality (k = 10 Nearest Neighbors)
+
+- **Sign Purity** measures how often neighboring embeddings belong to the same sign class.
+- **Tablet Purity** measures how often neighboring embeddings originate from the same tablet.
+
+Higher sign purity indicates better sign discrimination, while lower tablet purity suggests reduced reliance on tablet-specific characteristics.
+
+| Model | Embedding Dim. | Sign Purity | Tablet Purity |
+|---------|---------|---------|---------|
+| ResNet18 | 512 | 0.8649 | 0.0689 |
+| ResNet50 | 2048 | 0.8051 | 0.1006 |
+| ResNet101 | 2048 | 0.8350 | 0.0967 |
+| ConvNeXt Base | 1024 | 0.8829 | **0.0580** |
+| ViT Base | 768 | 0.8621 | 0.0819 |
+| Swin Base | 1024 | **0.8860** | 0.0771 |
+
+#### Key Findings
+
+- **Swin Base** achieves the highest sign purity (**88.60%**), indicating the strongest sign-level clustering in the embedding space.
+- **ConvNeXt Base** achieves the lowest tablet purity (**5.80%**), suggesting the least dependence on tablet-specific characteristics.
+- Both **ConvNeXt Base** and **Swin Base** produce highly discriminative embeddings while maintaining low tablet-level bias.
+- All architectures achieve substantially higher sign purity than tablet purity, indicating that embeddings primarily capture sign identity rather than tablet identity.
+
+---
+
+### 4. Same-Sign Similarity by Tablet and Period (Image-Level Split)
+
+Average cosine similarity between signs belonging to the same sign class.
+
+| Model | Same Tablet | Same Period Different Tablet | Different Period Different Tablet | Tablet Effect | Period Effect |
+|---------|---------|---------|---------|---------|---------|
+| ResNet18 | 0.8264 | 0.7048 | 0.4708 | 0.1216 | 0.2341 |
+| ResNet50 | 0.8031 | 0.6642 | 0.4812 | 0.1389 | 0.1830 |
+| ResNet101 | 0.7504 | 0.5816 | 0.3529 | 0.1687 | 0.2287 |
+| ConvNeXt Base | **0.9015** | **0.7347** | 0.2139 | 0.1668 | **0.5208** |
+| ViT Base | 0.7653 | 0.5702 | 0.1889 | 0.1950 | 0.3813 |
+| Swin Base | 0.8495 | 0.6495 | **0.1772** | **0.1999** | 0.4724 |
+
+#### Key Findings
+
+```text
+  Same Tablet > Same Period > Different Period
+  ```
+
+- **ConvNeXt Base** achieves the highest same-tablet similarity (**0.9015**) and the strongest period separation (**0.5208**).
+
+- **Swin Base** achieves the lowest different-period similarity (**0.1772**), indicating strong period discrimination.
+
+- These results suggest that the learned embeddings capture both sign identity and period-specific stylistic variation.
+
+---
+
+### 5. Same-Sign Similarity by Tablet and Period (Tablet-Holdout)
+
+| Model | Same Tablet | Same Period Different Tablet | Different Period Different Tablet | Tablet Effect | Period Effect |
+|---------|---------|---------|---------|---------|---------|
+| ResNet18 | **0.7860** | **0.6955** | 0.4967 | 0.0905 | 0.1988 |
+| ResNet50 | 0.7730 | 0.6444 | 0.4288 | 0.1285 | 0.2157 |
+| ResNet101 | 0.7607 | 0.6325 | 0.4143 | 0.1282 | 0.2182 |
+| ConvNeXt Base | 0.7598 | 0.6442 | 0.2649 | 0.1155 | 0.3794 |
+| ViT Base | 0.6603 | 0.5304 | **0.1858** | **0.1299** | 0.3446 |
+| Swin Base | 0.7366 | 0.6281 | 0.2065 | 0.1085 | **0.4216** |
+
+#### Key Findings
+
+- For all models, same-sign similarity follows:
+
+  ```text
+  Same Tablet > Same Period > Different Period
+  ```
+
+- **ResNet18** achieves the highest same-tablet similarity (**0.7860**) and same-period similarity (**0.6955**).
+
+- **ViT Base** achieves the lowest different-period similarity (**0.1858**), indicating strong separation between periods.
+
+- **Swin Base** achieves the largest period separation (**0.4216**), suggesting the strongest sensitivity to period-specific stylistic variation.
+
+- These results indicate that the learned embeddings capture both sign identity and historical stylistic differences, even when evaluated on previously unseen tablets.
+
+---
+
+### 6. Tablet-Holdout Fragment Retrieval Results
+
+#### Artificial Fragment Retrieval
+
+| Model | Recall@1 | Recall@5 | Recall@10 | MRR |
+|---|---:|---:|---:|---:|
+| ResNet18 | 0.3428 | 0.5096 | 0.5902 | 0.4262 |
+| ResNet50 | **0.5424** | **0.7106** | **0.7862** | **0.6245** |
+| ResNet101 | 0.4932 | 0.6771 | 0.7455 | 0.5788 |
+| ConvNeXt Base | 0.3272 | 0.5004 | 0.5902 | 0.4153 |
+| ViT Base | 0.4875 | 0.6543 | 0.7327 | 0.5703 |
+| Swin Base | 0.4098 | 0.5823 | 0.6650 | 0.4961 |
+
+ResNet50 achieved the best performance across all retrieval metrics.
+
+#### Spatially Divided-Fragment Retrieval
+
+The evaluation included **695 query fragments**, **1,816 gallery fragments**, and **1,369 parent tablets**.
+
+| Model | Recall@1 | Recall@5 | Recall@10 | MRR |
+|---|---:|---:|---:|---:|
+| ResNet18 | 0.3194 | 0.5309 | 0.6115 | 0.4180 |
+| ResNet50 | **0.4763** | **0.6576** | **0.7338** | **0.5612** |
+| ResNet101 | 0.4345 | 0.6187 | 0.7151 | 0.5226 |
+| ConvNeXt Base | 0.2993 | 0.4734 | 0.5540 | 0.3874 |
+| ViT Base | 0.4144 | 0.6014 | 0.6705 | 0.5018 |
+| Swin Base | 0.3525 | 0.5338 | 0.6101 | 0.4416 |
+
+ResNet50 achieved the best performance, retrieving a fragment from the same parent tablet within the top 10 results for **73.38%** of the queries.
+
+---
+
+### 7. Quantitative Occlusion Bias Analysis
+
+Occlusion experiments were performed by systematically masking image regions and measuring confidence changes. Models that rely primarily on sign morphology should exhibit larger confidence drops when central sign regions are occluded than when border regions are masked.
+
+#### Occlusion Summary
+
+| Model | Correct Mean Drop | Wrong Mean Drop | Center Drop (Wrong) | Border Drop (Wrong) |
+|---------|---------|---------|---------|---------|
+| ResNet18 | 0.0009 | 0.0121 | 0.0207 | 0.0042 |
+| ResNet50 | 0.0023 | 0.0136 | 0.0209 | 0.0069 |
+| ResNet101 | 0.0014 | 0.0160 | 0.0246 | 0.0080 |
+| ConvNeXt Base | 0.0015 | **0.0079** | 0.0127 | 0.0034 |
+| ViT Base | 0.0047 | 0.0168 | 0.0179 | 0.0159 |
+| Swin Base | 0.0031 | 0.0129 | 0.0188 | 0.0075 |
+
+#### Key Findings
+
+- Correct predictions are highly stable under local occlusions for all architectures.
+- Wrong predictions are substantially more sensitive to occlusions.
+- For CNN-based models (ResNet and ConvNeXt), occluding central image regions consistently causes larger confidence drops than occluding border regions.
+- ConvNeXt Base exhibits the smallest confidence degradation under occlusion, suggesting particularly robust feature representations.
+- The stronger effect of central occlusions indicates that models primarily rely on sign morphology rather than peripheral image artifacts.
+
+#### Interpretation
+
+The observed behavior suggests that the learned representations are driven mainly by sign structure and shape rather than tablet-specific backgrounds, illumination patterns, or image acquisition artifacts.
+
+---
+
+---
+
+### 8. Large-Scale Tablet Period Attribution
+
+#### Collection Filtering and DETR Processing
 
 The large-scale processing pipeline initially examined **312,148 tablet fragments** from the EBL database.
 
@@ -216,7 +380,7 @@ The remaining number of fragments was:
 
 These **8,598 fragments** did not contribute crop predictions to the downstream period-attribution file.
 
-### Dataset Flow Summary
+#### Dataset Flow Summary
 
 ```text
 312,148 total database fragments examined
@@ -244,7 +408,7 @@ Results are therefore reported in terms of:
 - Overall tablet-level period-attribution accuracy
 - Accuracy grouped by the number of confident crops
 
-### Period-Attribution Pipeline
+#### Period-Attribution Pipeline
 
 The large-scale period-attribution pipeline consists of the following steps:
 
@@ -255,7 +419,7 @@ The large-scale period-attribution pipeline consists of the following steps:
 5. Aggregate sign-level period predictions using majority voting.
 6. Compare the predicted tablet period with the available period metadata.
 
-### Inference and Evaluation Settings
+#### Inference and Evaluation Settings
 
 The large-scale period-attribution experiment used the following thresholds and metadata source:
 
@@ -271,7 +435,7 @@ The predicted tablet period was compared with the reference period stored in the
 
 ---
 
-### Crop-Prediction Retention and Fragment Coverage
+#### Crop-Prediction Retention and Fragment Coverage
 
 | Model | Total Crop Predictions | Crop Predictions Used | Crop Usage (%) | Fragments Evaluated | Coverage (%) | Without Confident Crops |
 |---|---:|---:|---:|---:|---:|---:|
@@ -300,7 +464,7 @@ $$
 \times 100
 $$
 
-#### Key Findings
+##### Key Findings
 
 - **Swin Base** retains the largest proportion of crop predictions, using **65.33%** of all detected crops.
 - Swin Base evaluates **73,687 fragments**, corresponding to the highest coverage of **95.15%**.
@@ -310,7 +474,7 @@ $$
 
 ---
 
-### Overall Tablet-Level Period-Attribution Performance
+#### Overall Tablet-Level Period-Attribution Performance
 
 | Model | Fragments Evaluated | Correct | Incorrect | Accuracy (%) |
 |---|---:|---:|---:|---:|
@@ -330,7 +494,7 @@ $$
 \times 100
 $$
 
-#### Key Findings
+##### Key Findings
 
 - **ResNet50** achieves the highest overall tablet-level period-attribution accuracy of **75.63%**.
 - ResNet50 correctly predicts the periods of **52,778 out of 69,789 evaluated fragments**.
@@ -343,7 +507,7 @@ $$
 
 ---
 
-### Accuracy by Number of Confident Crops
+#### Accuracy by Number of Confident Crops
 
 To investigate how the amount of sign-level evidence affects tablet-level period attribution, fragments were divided into four groups according to the number of confident crop predictions available for voting:
 
@@ -401,7 +565,7 @@ $$
 
 ---
 
-### Crop-Count Accuracy Summary
+#### Crop-Count Accuracy Summary
 
 | Model | 1 Crop | 2–4 Crops | 5–9 Crops | 10+ Crops |
 |---|---:|---:|---:|---:|
@@ -412,7 +576,7 @@ $$
 | ViT Base | 54.43 | 65.62 | 75.56 | 79.22 |
 | Swin Base | 54.42 | 65.64 | 76.23 | 79.68 |
 
-#### Key Findings
+##### Key Findings
 
 - Period-attribution accuracy consistently increases as more confident sign crops become available.
 - Fragments supported by only one confident crop achieve approximately **54–57% accuracy**.
@@ -428,7 +592,7 @@ $$
 
 ---
 
-### Interpretation
+#### Interpretation
 
 The results demonstrate that tablet-level period attribution benefits substantially from aggregating evidence across multiple recognized signs.
 
@@ -446,9 +610,11 @@ These results indicate that the number of confident detected signs can serve as 
 
 ---
 
-## Large-Scale Fragment Retrieval on the Unannotated Collection
+---
 
-### Effect of the Minimum Crop Threshold
+### 9. Large-Scale Fragment Retrieval on the Unannotated Collection
+
+#### Effect of the Minimum Crop Threshold
 
 This experiment evaluates fragment retrieval at collection scale using automatically detected signs from the large-scale unannotated-tablet collection. Artificial query fragments were generated from eligible source fragments, and each query was compared against the remaining source-fragment collection.
 
@@ -458,7 +624,7 @@ Each eligible source fragment was divided into multiple artificial query fragmen
 
 The DETR confidence threshold was fixed at 0.60 for all experiments.
 
-### ResNet18
+#### ResNet18
 
 | Minimum Crops | Query / Artificial Fragments | Source Fragments | Recall@1 | Recall@5 | Recall@10 | MRR |
 |:-------------:|-----------------------------:|-----------------:|---------:|---------:|----------:|----:|
@@ -472,7 +638,7 @@ The DETR confidence threshold was fixed at 0.60 for all experiments.
 
 ---
 
-### ResNet50
+#### ResNet50
 
 | Minimum Crops | Query / Artificial Fragments | Source Fragments | Recall@1 | Recall@5 | Recall@10 | MRR |
 |:-------------:|-----------------------------:|-----------------:|---------:|---------:|----------:|----:|
@@ -486,7 +652,7 @@ The DETR confidence threshold was fixed at 0.60 for all experiments.
 
 ---
 
-### ResNet101
+#### ResNet101
 
 | Minimum Crops | Query / Artificial Fragments | Source Fragments | Recall@1 | Recall@5 | Recall@10 | MRR |
 |:-------------:|-----------------------------:|-----------------:|---------:|---------:|----------:|----:|
@@ -500,7 +666,7 @@ The DETR confidence threshold was fixed at 0.60 for all experiments.
 
 ---
 
-### Comparison at Minimum-Crop Threshold 70
+#### Comparison at Minimum-Crop Threshold 70
 
 | Model | Query / Artificial Fragments | Source Fragments | Recall@1 | Recall@5 | Recall@10 | MRR |
 |:------|-----------------------------:|-----------------:|---------:|---------:|----------:|----:|
@@ -508,7 +674,7 @@ The DETR confidence threshold was fixed at 0.60 for all experiments.
 | ResNet50 | 8,838 | 2,210 | **0.572415** | **0.787622** | **0.860715** | **0.671193** |
 | ResNet101 | 8,838 | 2,210 | 0.532813 | 0.749151 | 0.824282 | 0.633004 |
 
-### ConvNeXt Base
+#### ConvNeXt Base
 
 | Minimum Crops | Query / Artificial Fragments | Source Fragments | Recall@1 | Recall@5 | Recall@10 | MRR |
 |:-------------:|-----------------------------:|-----------------:|----------:|----------:|-----------:|----------:|
@@ -522,7 +688,7 @@ The DETR confidence threshold was fixed at 0.60 for all experiments.
 
 ---
 
-### ViT Base
+#### ViT Base
 
 | Minimum Crops | Query / Artificial Fragments | Source Fragments | Recall@1 | Recall@5 | Recall@10 | MRR |
 |:-------------:|-----------------------------:|-----------------:|----------:|----------:|-----------:|----------:|
@@ -536,7 +702,7 @@ The DETR confidence threshold was fixed at 0.60 for all experiments.
 
 ---
 
-### Swin Base
+#### Swin Base
 
 | Minimum Crops | Query / Artificial Fragments | Source Fragments | Recall@1 | Recall@5 | Recall@10 | MRR |
 |:-------------:|-----------------------------:|-----------------:|----------:|----------:|-----------:|----------:|
@@ -550,142 +716,9 @@ The DETR confidence threshold was fixed at 0.60 for all experiments.
 
 ---
 
-### Key Findings
+#### Key Findings
 
 Increasing the minimum crop threshold improved retrieval performance across all ResNet models but reduced dataset coverage. ResNet50 performed best, achieving Recall@1 of 0.5724 and MRR of 0.6712 at a threshold of 70. Overall, thresholds of 30–40 provide a better balance between retrieval accuracy and the number of retained fragments.
-
----
-
-## Embedding Quality (k = 10 Nearest Neighbors)
-
-- **Sign Purity** measures how often neighboring embeddings belong to the same sign class.
-- **Tablet Purity** measures how often neighboring embeddings originate from the same tablet.
-
-Higher sign purity indicates better sign discrimination, while lower tablet purity suggests reduced reliance on tablet-specific characteristics.
-
-| Model | Embedding Dim. | Sign Purity | Tablet Purity |
-|---------|---------|---------|---------|
-| ResNet18 | 512 | 0.8649 | 0.0689 |
-| ResNet50 | 2048 | 0.8051 | 0.1006 |
-| ResNet101 | 2048 | 0.8350 | 0.0967 |
-| ConvNeXt Base | 1024 | 0.8829 | **0.0580** |
-| ViT Base | 768 | 0.8621 | 0.0819 |
-| Swin Base | 1024 | **0.8860** | 0.0771 |
-
-### Key Findings
-
-- **Swin Base** achieves the highest sign purity (**88.60%**), indicating the strongest sign-level clustering in the embedding space.
-- **ConvNeXt Base** achieves the lowest tablet purity (**5.80%**), suggesting the least dependence on tablet-specific characteristics.
-- Both **ConvNeXt Base** and **Swin Base** produce highly discriminative embeddings while maintaining low tablet-level bias.
-- All architectures achieve substantially higher sign purity than tablet purity, indicating that embeddings primarily capture sign identity rather than tablet identity.
-
-## Same-Sign Similarity by Tablet and Period (Image-Level Split)
-
-Average cosine similarity between signs belonging to the same sign class.
-
-| Model | Same Tablet | Same Period Different Tablet | Different Period Different Tablet | Tablet Effect | Period Effect |
-|---------|---------|---------|---------|---------|---------|
-| ResNet18 | 0.8264 | 0.7048 | 0.4708 | 0.1216 | 0.2341 |
-| ResNet50 | 0.8031 | 0.6642 | 0.4812 | 0.1389 | 0.1830 |
-| ResNet101 | 0.7504 | 0.5816 | 0.3529 | 0.1687 | 0.2287 |
-| ConvNeXt Base | **0.9015** | **0.7347** | 0.2139 | 0.1668 | **0.5208** |
-| ViT Base | 0.7653 | 0.5702 | 0.1889 | 0.1950 | 0.3813 |
-| Swin Base | 0.8495 | 0.6495 | **0.1772** | **0.1999** | 0.4724 |
-
-### Key Findings
-
-```text
-  Same Tablet > Same Period > Different Period
-  ```
-
-- **ConvNeXt Base** achieves the highest same-tablet similarity (**0.9015**) and the strongest period separation (**0.5208**).
-
-- **Swin Base** achieves the lowest different-period similarity (**0.1772**), indicating strong period discrimination.
-
-- These results suggest that the learned embeddings capture both sign identity and period-specific stylistic variation.
-
-## Sign Classification Performance (Tablet-Holdout)
-
-The tablet-holdout protocol ensures that signs originating from the same tablet never appear in both training and testing sets, providing a realistic evaluation of model generalization to previously unseen tablets.
-
-| Model | Top-1 | Top-2 | Top-3 | Precision | Recall | Macro-F1 |
-|---------|---------|---------|---------|---------|---------|---------|
-| ResNet18 | 0.7371 | 0.8426 | 0.8852 | 0.7604 | 0.7203 | 0.7169 |
-| ResNet50 | 0.7412 | 0.8524 | 0.8915 | **0.7700** | 0.7258 | 0.7228 |
-| ResNet101 | 0.7465 | 0.8528 | 0.8903 | 0.7696 | 0.7375 | 0.7280 |
-| ConvNeXt Base | **0.7572** | 0.8679 | **0.9102** | 0.7682 | **0.7413** | **0.7296** |
-| ViT Base | 0.7054 | 0.8205 | 0.8671 | 0.7224 | 0.6911 | 0.6773 |
-| Swin Base | 0.7465 | 0.8556 | 0.8985 | 0.7564 | 0.7307 | 0.7217 |
-
-### Key Findings
-
-- **ConvNeXt Base** achieves the best overall tablet-holdout performance with:
-  - Highest Top-1 Accuracy (**75.72%**)
-  - Highest Top-3 Accuracy (**91.02%**)
-  - Highest Recall (**74.13%**)
-  - Highest Macro-F1 (**72.96%**)
-
-- **ResNet50** achieves the highest Precision (**77.00%**).
-
-- **Swin Base** performs competitively with ResNet101 despite using a transformer-based architecture.
-
-- **ViT Base** shows the largest performance drop under tablet-holdout evaluation, suggesting lower robustness to unseen tablet styles compared to ConvNeXt, Swin, and ResNet architectures.
-
-- The relatively small gap between ConvNeXt Base and ResNet101 indicates that both CNN-based architectures generalize well to previously unseen tablets.
-
-## Same-Sign Similarity by Tablet and Period (Tablet-Holdout)
-
-| Model | Same Tablet | Same Period Different Tablet | Different Period Different Tablet | Tablet Effect | Period Effect |
-|---------|---------|---------|---------|---------|---------|
-| ResNet18 | **0.7860** | **0.6955** | 0.4967 | 0.0905 | 0.1988 |
-| ResNet50 | 0.7730 | 0.6444 | 0.4288 | 0.1285 | 0.2157 |
-| ResNet101 | 0.7607 | 0.6325 | 0.4143 | 0.1282 | 0.2182 |
-| ConvNeXt Base | 0.7598 | 0.6442 | 0.2649 | 0.1155 | 0.3794 |
-| ViT Base | 0.6603 | 0.5304 | **0.1858** | **0.1299** | 0.3446 |
-| Swin Base | 0.7366 | 0.6281 | 0.2065 | 0.1085 | **0.4216** |
-
-### Key Findings
-
-- For all models, same-sign similarity follows:
-
-  ```text
-  Same Tablet > Same Period > Different Period
-  ```
-
-- **ResNet18** achieves the highest same-tablet similarity (**0.7860**) and same-period similarity (**0.6955**).
-
-- **ViT Base** achieves the lowest different-period similarity (**0.1858**), indicating strong separation between periods.
-
-- **Swin Base** achieves the largest period separation (**0.4216**), suggesting the strongest sensitivity to period-specific stylistic variation.
-
-- These results indicate that the learned embeddings capture both sign identity and historical stylistic differences, even when evaluated on previously unseen tablets.
-
-## Quantitative Occlusion Bias Analysis
-
-Occlusion experiments were performed by systematically masking image regions and measuring confidence changes. Models that rely primarily on sign morphology should exhibit larger confidence drops when central sign regions are occluded than when border regions are masked.
-
-### Occlusion Summary
-
-| Model | Correct Mean Drop | Wrong Mean Drop | Center Drop (Wrong) | Border Drop (Wrong) |
-|---------|---------|---------|---------|---------|
-| ResNet18 | 0.0009 | 0.0121 | 0.0207 | 0.0042 |
-| ResNet50 | 0.0023 | 0.0136 | 0.0209 | 0.0069 |
-| ResNet101 | 0.0014 | 0.0160 | 0.0246 | 0.0080 |
-| ConvNeXt Base | 0.0015 | **0.0079** | 0.0127 | 0.0034 |
-| ViT Base | 0.0047 | 0.0168 | 0.0179 | 0.0159 |
-| Swin Base | 0.0031 | 0.0129 | 0.0188 | 0.0075 |
-
-### Key Findings
-
-- Correct predictions are highly stable under local occlusions for all architectures.
-- Wrong predictions are substantially more sensitive to occlusions.
-- For CNN-based models (ResNet and ConvNeXt), occluding central image regions consistently causes larger confidence drops than occluding border regions.
-- ConvNeXt Base exhibits the smallest confidence degradation under occlusion, suggesting particularly robust feature representations.
-- The stronger effect of central occlusions indicates that models primarily rely on sign morphology rather than peripheral image artifacts.
-
-### Interpretation
-
-The observed behavior suggests that the learned representations are driven mainly by sign structure and shape rather than tablet-specific backgrounds, illumination patterns, or image acquisition artifacts.
 
 ---
 
