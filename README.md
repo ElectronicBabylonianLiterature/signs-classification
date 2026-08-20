@@ -12,7 +12,26 @@ All 2026 extension experiments are located in:
 sign_classification_extension/
 ```
 
-This folder contains the notebooks and code for:
+### Repository Structure
+
+```text
+sign_classification_extension/
+│
+├── Fragment_retrieval/
+│   ├── coordinate_derived_fragment_retrieval_convnext.ipynb
+│   ├── coordinate_derived_fragment_retrieval_resnet.ipynb
+│   └── coordinate_derived_fragment_retrieval_transformers.ipynb
+│
+├── Sign_classification/
+│   ├── sign_classification_extension_convnext.ipynb
+│   ├── sign_classification_extension_resnet.ipynb
+│   └── sign_classification_extension_transformers.ipynb
+│
+└── Tablet_period_attribution/
+    └── detr_period_attribution.ipynb
+```
+
+This sign_classification_exxtension parent folder contains the notebooks and code for:
 
 - ResNet18 / ResNet50 / ResNet101
 - ConvNeXt Base
